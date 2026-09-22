@@ -1,0 +1,232 @@
+<?xml version="1.0"?>
+
+<robot name = "robo_on_wheels">
+
+    <material name="blue">
+        <color rgba="0 0 0.8 1"/>
+    </material>
+
+    <material name="white">
+        <color rgba="1 1 1 1"/>
+    </material>
+
+    <material name="skin">
+        <color rgba="0.9 0.8 0.7 1"/>
+    </material>
+
+    <material name="black">
+        <color rgba="0 0 0 1"/>
+    </material>
+
+    <material name="peach">
+        <color rgba="1.0 0.898 0.706 1.0"/>
+    </material>
+
+                            <!-- BODY -->
+    <link name="base_link">
+        <visual>
+            <geometry>
+                <cylinder length="0.6" radius="0.2"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder length="0.6" radius="0.2"/>
+            </geometry> 
+        </collision>
+    </link>
+
+                        <!-- HEAD with NOSE -->
+
+    <link name="head">
+        <visual>
+            <geometry>
+                <sphere radius="0.14"/>
+            </geometry>
+            <material name="skin"/>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+        </visual>
+
+        <collision>
+            <geometry>
+                <sphere radius="0.14"/>
+            </geometry>
+        </collision>
+
+        <inertial>
+            <mass value="3"/>
+            <intertia ixx="1e-3" ixy="0.0" ixz="0.0" iyy="1e-3" iyz="0.0" izz="1e-3" />
+        </inertial>
+    </link>
+
+    <joint name="head_to_body" type="continuous">
+        <parent link="base_link"/>
+        <child link="head"/>
+        <origin xyz = "0 0 0.44"/>
+        <axis xyz="0 0 1"/>
+    </joint>
+
+
+    <link name="nose">
+        <visual>
+            <geometry>
+                <sphere radius="0.02"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="nose_to_head" type="fixed">
+        <parent link="head"/>
+        <child link="nose"/>
+        <origin xyz = "0.15 0 0"/>
+    </joint>
+
+                        <!-- RIGHT_ARM -->
+
+    <link name="right_arm">
+        <visual>
+            <geometry>
+                <box size="0.6 0.1 0.1"/>
+            </geometry>
+            <origin rpy= "0 -1.57079 0" xyz="0 0 0.3"/> 
+            <material name="white"/>
+        </visual>
+    </link>
+
+    <joint name="base_to_right_arm" type="revolute">
+        <parent link="base_link"/>
+        <child link="right_arm"/>
+        <origin xyz="0 -0.25 0.25"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="1000" lower="0" upper="1.57" velocity="0.5"/>
+    </joint>
+
+                     <!-- LEFT_ARM -->
+
+    <link name="left_arm">
+        <visual>
+            <geometry>
+                <box size="0.6 0.1 0.1"/>
+            </geometry>
+            <origin rpy="0 -1.57079 0" xyz="0 0 0.3"/>
+            <material name="white"/>
+        </visual>
+    </link>
+
+    <joint name="base_to_left_arm" type="revolute">
+        <parent link="base_link"/>
+        <child link="left_arm"/>
+        <origin xyz="0 0.25 0.25"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="1000" lower="0" upper="1.57" velocity="0.5"/>
+    </joint>   
+
+                        <!-- RIGHT_FOOT -->
+    
+    <link name="right_foot">
+        <visual>
+            <geometry>
+                <box size="0.4 0.2 0.1"/>
+            </geometry>
+            <material name="peach"/>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+        </visual>
+    </link>
+
+    <joint name="body_to_right_foot" type="fixed">
+        <parent link="base_link"/>
+        <child link="right_foot"/>
+        <origin xyz="0 -0.2 -0.34"/>
+    </joint>
+
+                        <!-- LEFT_FOOT -->
+    
+    <link name="left_foot">
+        <visual>
+            <geometry>
+                <box size="0.4 0.2 0.1"/>
+            </geometry>
+            <material name="peach"/>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+        </visual>
+    </link>
+
+    <joint name="body_to_left_foot" type="fixed">
+        <parent link="base_link"/>
+        <child link="left_foot"/>
+        <origin xyz="0 0.2 -0.34"/>
+
+    </joint> 
+
+                        <!-- WHEELS -->
+    
+    <link name="right_front_wheel">
+        <visual>
+            <geometry>
+                <cylinder length="0.1" radius="0.1"/>
+            </geometry>
+            <origin rpy="1.5707 0 0"/> 
+            <material name="black"/>
+        </visual>
+    </link>
+
+    <joint name="right_foot_right_front_wheel" type="fixed">
+        <parent link="right_foot"/>
+        <child link="right_front_wheel"/>
+        <origin xyz="0.1 0 -0.15"/>
+    </joint>
+
+
+
+    <link name="right_back_wheel">
+        <visual>
+            <geometry>
+                <cylinder length="0.1" radius="0.1"/>
+            </geometry>
+            <origin rpy="1.5707 0 0"/> 
+            <material name="black"/>
+        </visual>
+    </link>
+
+    <joint name="right_foot_right_back_wheel" type="fixed">
+        <parent link="right_foot"/>
+        <child link="right_back_wheel"/>
+        <origin xyz="-0.1 0 -0.15"/>
+    </joint>
+
+
+
+    <link name="left_front_wheel">
+        <visual>
+            <geometry>
+                <cylinder length="0.1" radius="0.1"/>
+            </geometry>
+            <origin rpy="1.5707 0 0"/> 
+            <material name="black"/>
+        </visual>
+    </link>
+
+    <joint name="left_foot_left_front_wheel" type="fixed">
+        <parent link="left_foot"/>
+        <child link="left_front_wheel"/>
+        <origin xyz="0.1 0 -0.15"/>
+    </joint>
+
+    <link name="left_back_wheel">
+        <visual>
+            <geometry>
+                <cylinder length="0.1" radius="0.1"/>
+            </geometry>
+            <origin rpy="1.5707 0 0"/> 
+            <material name="black"/>
+        </visual>
+    </link>
+
+    <joint name="rleft_foot_left_back_wheel" type="fixed">
+        <parent link="left_foot"/>
+        <child link="left_back_wheel"/>
+        <origin xyz="-0.1 0 -0.15"/>
+    </joint>
+
+</robot>

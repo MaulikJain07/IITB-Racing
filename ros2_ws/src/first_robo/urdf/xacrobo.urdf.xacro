@@ -1,0 +1,229 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name = "xacrobo">
+
+    <material name="blue">
+        <color rgba="0 0 0.8 1"/>
+    </material>
+
+    <material name="white">
+        <color rgba="1 1 1 1"/>
+    </material>
+
+    <material name="skin">
+        <color rgba="0.9 0.8 0.7 1"/>
+    </material>
+
+    <material name="black">
+        <color rgba="0 0 0 1"/>
+    </material>
+
+    <material name="peach">
+        <color rgba="1.0 0.898 0.706 1.0"/>
+    </material>
+
+                            <!-- DEFAULT INERTIAL -->
+    <xacro:macro name="def_inertial" params="mass">
+        <inertial>
+            <mass value="${mass}"/>
+            <inertia ixx="1e-3" iyy="1e-3" izz="1e-3" ixy="0" ixz="0" iyz="0"/>
+        </inertial>
+    </xacro:macro>
+
+                        <!-- BASE FOOTPRINT  we need this taaki KDL ko dikkat na ho, it wants first link to be massless -->
+
+    <link name="base_footprint">
+    </link>
+
+    <joint name="base_joint" type="fixed">
+        <parent link="base_footprint"/>
+        <child link="base_link"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
+
+                            <!-- BODY -->
+    <link name="base_link">
+        <visual>
+            <geometry>
+                <cylinder length="0.6" radius="0.2"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder length="0.6" radius="0.2"/>
+            </geometry> 
+        </collision>
+        <xacro:def_inertial mass="10"/>
+    </link>
+
+                        <!-- HEAD with NOSE -->
+
+    <link name="head">
+        <visual>
+            <geometry>
+                <sphere radius="0.17"/>
+            </geometry>
+            <material name="skin"/>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+        </visual>
+
+        <collision>
+            <geometry>
+                <sphere radius="0.17"/>
+            </geometry>
+        </collision>
+
+        <inertial>
+            <mass value="3"/>
+            <inertia ixx="1e-3" ixy="0.0" ixz="0.0" iyy="1e-3" iyz="0.0" izz="1e-3" />
+        </inertial>
+    </link>
+
+    <joint name="head_to_body" type="continuous">
+        <parent link="base_link"/>
+        <child link="head"/>
+        <origin xyz = "0 0 0.4"/>
+        <axis xyz="0 0 1"/>
+    </joint>
+
+
+
+    <link name="nose">
+        <visual>
+            <geometry>
+                <sphere radius="0.02"/>
+            </geometry>
+        </visual>
+        <xacro:def_inertial mass="1"/>
+        <collision>
+            <geometry>
+                <sphere radius="0.02"/>
+            </geometry>
+        </collision>
+
+    </link>
+
+    <joint name="nose_to_head" type="fixed">
+        <parent link="head"/>
+        <child link="nose"/>
+        <origin xyz = "0.15 0 0"/>
+    </joint>
+
+                        <!-- ARM -->
+                         
+    <xacro:macro name="arm" params="rl reflect">
+
+        <link name="${rl}_arm">
+            <visual>
+                <geometry>
+                    <box size="0.6 0.1 0.1"/>
+                </geometry>
+                <origin rpy= "0 -1.57079 0" xyz="0 0 0.3"/> 
+                <material name="white"/>
+            </visual>
+            <xacro:def_inertial mass="6"/>
+            <collision>
+                <geometry>
+                    <box size="0.6 0.1 0.1"/>
+                </geometry>
+            </collision>
+            
+        </link>
+
+        <joint name="base_to_${rl}_arm" type="revolute">
+            <parent link="base_link"/>
+            <child link="${rl}_arm"/>
+            <origin xyz="0 ${reflect*0.25} 0.25"/>
+            <axis xyz="0 1 0"/>
+            <limit effort="1000" lower="0" upper="1.57" velocity="0.5"/>
+        </joint>
+
+    </xacro:macro>
+
+    <xacro:arm rl="right" reflect="-1"/>
+    <xacro:arm rl="left" reflect="1"/>
+  
+
+                        <!-- FEET -->
+
+    <xacro:macro name="feet" params="rl reflect">
+        
+        <link name="${rl}_foot">
+            <visual>
+                <geometry>
+                    <box size="0.4 0.2 0.1"/>
+                </geometry>
+                <material name="peach"/>
+                <origin rpy="0 0 0" xyz="0 0 0"/>
+            </visual>
+            <xacro:def_inertial mass="6"/>
+            <collision>
+                <geometry>
+                    <box size="0.4 0.2 0.1"/>
+                </geometry>
+            </collision>
+        </link>
+
+        <joint name="body_to_${rl}_foot" type="fixed">
+            <parent link="base_link"/>
+            <child link="${rl}_foot"/>
+            <origin xyz="0 ${reflect*0.2} -0.34"/>
+        </joint> 
+
+    </xacro:macro>
+
+    <xacro:feet rl="right" reflect="-1"/>
+    <xacro:feet rl="left" reflect="1"/>
+
+                        <!-- WHEELS -->
+
+    <xacro:macro name="wheels" params="rl fb reflect">
+        <link name="${rl}_${fb}_wheel">
+            <visual>
+                <geometry>
+                    <cylinder length="0.1" radius="0.1"/>
+                </geometry>
+                <origin rpy="${pi/2} 0 0"/> 
+                <material name="black"/>
+            </visual>
+            <xacro:def_inertial mass="3"/>
+            <collision>
+                <geometry>
+                    <cylinder length="0.1" radius="0.1"/>
+                </geometry>
+            </collision>
+        </link>
+
+        <joint name="${rl}_foot_${rl}_${fb}_wheel" type="fixed">
+            <parent link="${rl}_foot"/>
+            <child link="${rl}_${fb}_wheel"/>
+            <origin xyz="${reflect*0.1} 0 -0.15"/>
+        </joint>
+    </xacro:macro>
+
+    <xacro:wheels rl="right" fb="front" reflect="1.0"/>
+    <xacro:wheels rl="right" fb="back" reflect="-1.0"/>
+    <xacro:wheels rl="left" fb="front" reflect="1.0"/>
+    <xacro:wheels rl="left" fb="back" reflect="-1.0"/>
+
+
+
+                        <!-- REQUIREMENTS FOR GAZEBO -->
+    <xacro:include filename="material.xacro"/>
+
+    <ros2_control name="GazeboSystem" type="system">
+    <hardware>
+        <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+    </hardware>
+    <joint name="head_swivel" />
+    </ros2_control>
+
+    <gazebo>
+    <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+        <parameters>$(find urdf_sim_tutorial)/config/09a-minimal.yaml</parameters>
+    </plugin>
+    </gazebo>
+
+</robot>    
